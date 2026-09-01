@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Main Congklak</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Nunito:ital,wght@0,400;0,600;0,700;1,600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --wood: #5c3a21;
+    --wood-light: #7a5230;
+    --wood-lighter: #93693f;
+    --wood-dark: #3d2513;
+    --pit: #2a190d;
+    --pit-in: #1c0f07;
+    --seed: #f3e3c3;
+    --seed-dark: #cbb488;
+    --cream: #f6ecd9;
+    --ink-soft: #d9c6a8;
+    --p1: #d65f3b;
+    --p1-dark: #a9432a;
+    --p2: #3f8f6b;
+    --p2-dark: #2e6b4f;
+  }
+  *{box-sizing:border-box;}
+  html,body{
+    margin:0;
+    min-height:100%;
+    background: radial-gradient(ellipse at 50% -10%, #7a5230 0%, var(--wood) 55%, var(--wood-dark) 100%);
+    font-family:'Nunito', sans-serif;
+    color:var(--cream);
+  }
+  .wrap{
+    max-width:760px;
+    margin:0 auto;
+    padding:26px 14px 40px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+  }
+  .title{
+    font-family:'Baloo 2', sans-serif;
+    font-weight:800;
+    font-size:clamp(28px,6vw,38px);
+    margin:0 0 4px;
+    text-shadow:0 2px 0 var(--wood-dark), 0 4px 10px rgba(0,0,0,0.3);
+  }
+  .subtitle{
+    color:var(--ink-soft);
+    font-weight:600;
+    font-size:14px;
+    margin-bottom:16px;
+  }
+  .modes{
+    display:flex;
+    gap:10px;
+    margin-bottom:18px;
+  }
+  .mode-btn{
+    font-family:'Baloo 2', sans-serif;
+    font-weight:700;
+    font-size:14px;
+    color:var(--cream);
+    background:rgba(255,255,255,0.08);
+    border:2px solid rgba(255,255,255,0.15);
+    border-radius:12px;
+    padding:8px 16px;
+    cursor:pointer;
+  }
+  .mode-btn.active{
+    background:var(--p1);
+    border-color:var(--p1-dark);
+  }
+
+  .turnbar{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    margin-bottom:14px;
+    font-family:'Baloo 2', sans-serif;
+    font-weight:700;
+    font-size:16px;
+  }
+  .turn-dot{
+    width:14px;height:14px;border-radius:50%;
+    box-shadow:0 0 0 3px rgba(255,255,255,0.15);
+  }
+
+  .board-outer{
+    background: linear-gradient(180deg, var(--wood-lighter) 0%, var(--wood) 55%, var(--wood-dark) 100%);
+    border-radius:26px;
+    padding:16px;
+    box-shadow:0 16px 34px rgba(0,0,0,0.4), inset 0 0 0 5px rgba(0,0,0,0.15);
+  }
+  .board{
+    display:grid;
+    grid-template-columns: 62px repeat(7, 1fr) 62px;
+    grid-template-rows: 1fr 1fr;
+    gap:8px;
+    width: min(640px, 82vw);
+  }
+  .store{
+    grid-row: 1 / 3;
+    border-radius:30px;
+    background: radial-gradient(ellipse at 35% 30%, #4a2e19, var(--pit-in) 70%);
+    box-shadow: inset 0 4px 10px rgba(0,0,0,0.7), inset 0 0 0 3px rgba(0,0,0,0.4);
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    gap:6px;
+    padding:6px 2px;
+    position:relative;
+  }
+  .store .count{
+    font-family:'Baloo 2', sans-serif;
+    font-weight:800;
+    font-size:22px;
+  }
+  .store.p1{color:var(--p1);}
+  .store.p2{color:var(--p2);}
+  .store .lbl{
+    font-size:10px;
+    font-weight:700;
+    color:var(--ink-soft);
+    writing-mode: vertical-rl;
+  }
+
+  .pit{
+    aspect-ratio:1/1;
+    border-radius:50%;
+    background: radial-gradient(ellipse at 35% 30%, #4a2e19, var(--pit-in) 72%);
+    box-shadow: inset 0 4px 8px rgba(0,0,0,0.7), inset 0 0 0 3px rgba(0,0,0,0.35);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    position:relative;
+    cursor:pointer;
+    transition: box-shadow 0.15s ease;
+  }
+  .pit.clickable:hover{
+    box-shadow: inset 0 4px 8px rgba(0,0,0,0.7), inset 0 0 0 3px rgba(0,0,0,0.35), 0 0 0 3px rgba(255,255,255,0.3);
+  }
+  .pit.disabled{
+    cursor:default;
+  }
+  .pit.drop{
+    box-shadow: inset 0 4px 8px rgba(0,0,0,0.7), inset 0 0 0 3px rgba(0,0,0,0.35), 0 0 0 4px #f2b705;
+  }
+  .seeds{
+    position:relative;
+    width:80%;
+    height:80%;
+  }
+  .seed{
+    position:absolute;
+    width:22%;
+    height:22%;
+    border-radius:50%;
+    background: radial-gradient(ellipse at 35% 30%, #fffdf6, var(--seed) 55%, var(--seed-dark) 100%);
+    box-shadow:0 1px 2px rgba(0,0,0,0.4);
+  }
+  .count-num{
+    position:relative;
+    z-index:2;
+    font-family:'Baloo 2', sans-serif;
+    font-weight:800;
+    font-size:15px;
+    color:var(--cream);
+    background:rgba(0,0,0,0.4);
+    border-radius:8px;
+    padding:1px 6px;
+  }
+
+  .hud{
+    margin-top:16px;
+    display:flex;
+    gap:14px;
+  }
+  button.reset{
+    font-family:'Baloo 2', sans-serif;
+    font-weight:700;
+    font-size:15px;
+    color:var(--cream);
+    background:var(--p1);
+    border:none;
+    border-radius:14px;
+    padding:10px 20px;
+    box-shadow:0 4px 0 var(--p1-dark);
+    cursor:pointer;
+  }
+  button.reset:active{transform:translateY(2px);box-shadow:0 2px 0 var(--p1-dark);}
+
+  .howto{
+    max-width:560px;
+    margin-top:18px;
+    font-size:14px;
+    line-height:1.55;
+    color:var(--ink-soft);
+    text-align:center;
+    font-style:italic;
+  }
+
+  .overlay{
+    position:fixed; inset:0;
+    background:rgba(20,12,6,0.75);
+    display:none;
+    align-items:center;
+    justify-content:center;
+    z-index:10;
+  }
+  .overlay.show{display:flex;}
+  .overlay-card{
+    background:var(--wood);
+    border-radius:18px;
+    padding:28px 26px;
+    text-align:center;
+    box-shadow:0 12px 30px rgba(0,0,0,0.5);
+    max-width:320px;
+  }
+  .overlay-card h2{
+    font-family:'Baloo 2', sans-serif;
+    margin:0 0 8px;
+    font-size:24px;
+  }
+  .overlay-card p{margin:0 0 16px; color:var(--ink-soft); font-size:14px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1 class="title">Main Congklak</h1>
+  <p class="subtitle">permainan tradisional &middot; dakon / sungka</p>
+
+  <div class="modes">
+    <button class="mode-btn active" id="modeFriend">Lawan Teman</button>
+    <button class="mode-btn" id="modeComputer">Lawan Komputer</button>
+  </div>
+
+  <div class="turnbar">
+    <span class="turn-dot" id="turnDot"></span>
+    <span id="turnLabel">Giliran Pemain 1</span>
+  </div>
+
+  <div class="board-outer">
+    <div class="board" id="board"></div>
+  </div>
+
+  <div class="hud">
+    <button class="reset" id="resetBtn">Ulang Permainan</button>
+  </div>
+
+  <p class="howto">Klik salah satu lubang kecil di sisi kamu. Semua biji di lubang itu akan disebar satu-satu ke lubang berikutnya. Kalau biji terakhir jatuh di lubang yang sudah ada isinya (punya sendiri maupun punya lawan), semua biji di lubang itu diambil lagi dan disebar lanjut. Biji terakhir jatuh tepat di lumbungmu &rarr; jalan lagi. Biji terakhir jatuh di lubang kosong milikmu &rarr; kamu mati (giliran habis), dan kalau lubang seberangnya (punya lawan) ada isinya, semua biji di sana masuk ke lumbungmu.</p>
+</div>
+
+<div class="overlay" id="overlay">
+  <div class="overlay-card">
+    <h2 id="overlayTitle">Selesai!</h2>
+    <p id="overlayText"></p>
+    <button class="reset" id="playAgain">Main Lagi</button>
+  </div>
+</div>
+
+<script>
+(function(){
+  // pit indices: 0-6 = Pemain1 pits, 7 = Pemain1 store, 8-14 = Pemain2 pits, 15 = Pemain2 store
+  let pits = [];
+  let currentPlayer = 1;
+  let mode = 'friend'; // 'friend' | 'computer'
+  let busy = false;
+  let gameOver = false;
+
+  const boardEl = document.getElementById('board');
+  const turnLabel = document.getElementById('turnLabel');
+  const turnDot = document.getElementById('turnDot');
+  const overlay = document.getElementById('overlay');
+
+  // ---------- efek suara (disintesis, tanpa file audio) ----------
+  let audioCtx = null;
+  function ensureAudio(){
+    if(!audioCtx){
+      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    }
+    if(audioCtx.state === 'suspended') audioCtx.resume();
+  }
+  function playTone(freq, dur, type, vol, delay){
+    try{
+      ensureAudio();
+      const t0 = audioCtx.currentTime + (delay||0);
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = type || 'sine';
+      osc.frequency.setValueAtTime(freq, t0);
+      gain.gain.setValueAtTime(0, t0);
+      gain.gain.linearRampToValueAtTime(vol||0.2, t0+0.008);
+      gain.gain.exponentialRampToValueAtTime(0.001, t0+dur);
+      osc.connect(gain).connect(audioCtx.destination);
+      osc.start(t0);
+      osc.stop(t0+dur+0.03);
+    }catch(e){ /* audio tidak tersedia, abaikan */ }
+  }
+  function playNoiseClick(centerFreq, q, dur, vol, delay){
+    try{
+      ensureAudio();
+      const t0 = audioCtx.currentTime + (delay||0);
+      const bufferSize = Math.max(1, Math.floor(audioCtx.sampleRate * dur));
+      const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+      const data = buffer.getChannelData(0);
+      for(let i=0;i<bufferSize;i++){
+        const decay = Math.pow(1 - i/bufferSize, 2.2);
+        data[i] = (Math.random()*2-1) * decay;
+      }
+      const src = audioCtx.createBufferSource();
+      src.buffer = buffer;
+      const bp = audioCtx.createBiquadFilter();
+      bp.type = 'bandpass';
+      bp.frequency.value = centerFreq;
+      bp.Q.value = q;
+      const gain = audioCtx.createGain();
+      gain.gain.setValueAtTime(vol, t0);
+      gain.gain.exponentialRampToValueAtTime(0.001, t0+dur);
+      src.connect(bp).connect(gain).connect(audioCtx.destination);
+      src.start(t0);
+    }catch(e){ /* audio tidak tersedia, abaikan */ }
+  }
+  function soundDrop(){
+    // biji/kerang jatuh ke lubang kayu: klik noise + "thump" resonansi rendah
+    const f = 1700 + Math.random()*1500;
+    playNoiseClick(f, 5 + Math.random()*5, 0.05, 0.45);
+    playTone(160 + Math.random()*70, 0.055, 'sine', 0.1);
+  }
+  function soundPickup(){
+    // suara ambil beberapa biji sekaligus (gemerincing pendek)
+    for(let i=0;i<4;i++){
+      const d = i*0.045 + Math.random()*0.012;
+      playNoiseClick(1500+Math.random()*1800, 4+Math.random()*5, 0.035, 0.26, d);
+    }
+  }
+  function soundExtraTurn(){
+    playTone(950, 0.1, 'square', 0.14);
+    playTone(1300, 0.14, 'square', 0.14, 0.09);
+  }
+  function soundCapture(){
+    // segenggam biji disapu masuk lumbung: gemerincing panjang + dentum rendah
+    for(let i=0;i<8;i++){
+      const d = i*0.032 + Math.random()*0.015;
+      playNoiseClick(1400+Math.random()*2100, 4+Math.random()*5, 0.05, 0.3, d);
+    }
+    playTone(140, 0.16, 'sine', 0.15, 0.05);
+  }
+  function soundGameOver(){
+    // nada pentatonis, kesan alat musik tradisional
+    const notes = [523.25, 659.25, 784.00, 880.00, 1046.5];
+    notes.forEach((f,i)=> playTone(f, 0.26, 'triangle', 0.16, i*0.14));
+  }
+  function soundClick(){
+    playTone(500, 0.06, 'sine', 0.12);
+  }
+
+  function initPits(){
+    pits = new Array(16).fill(0);
+    for(let i=0;i<7;i++) pits[i]=7;
+    for(let i=8;i<15;i++) pits[i]=7;
+    pits[7]=0; pits[15]=0;
+  }
+
+  function resetGame(){
+    initPits();
+    currentPlayer = 1;
+    busy = false;
+    gameOver = false;
+    overlay.classList.remove('show');
+    render();
+    updateTurnUI();
+  }
+
+  function seedDots(idx){
+    const n = pits[idx];
+    const shown = Math.min(n, 6);
+    let html = '';
+    const positions = [
+      [50,50],[30,30],[70,30],[30,70],[70,70],[50,20]
+    ];
+    for(let i=0;i<shown;i++){
+      const [x,y] = positions[i];
+      html += `<div class="seed" style="left:${x-11}%; top:${y-11}%;"></div>`;
+    }
+    return html;
+  }
+
+  function render(highlightIdx){
+    let html = '';
+    // store P2 (left)
+    html += `<div class="store p2" style="grid-column:1; ">
+      <div class="count">${pits[15]}</div>
+      <div class="lbl">LUMBUNG P2</div>
+    </div>`;
+
+    // top row: pits 14,13,...,8  (row1, columns 2..8)
+    for(let col=0; col<7; col++){
+      const idx = 14-col;
+      html += pitHtml(idx, 1, col+2, highlightIdx);
+    }
+
+    // store P1 (right), spans both rows, placed at column 9
+    html += `<div class="store p1" style="grid-column:9;">
+      <div class="count">${pits[7]}</div>
+      <div class="lbl">LUMBUNG P1</div>
+    </div>`;
+
+    // bottom row: pits 0..6 (row2, columns 2..8)
+    for(let col=0; col<7; col++){
+      const idx = col;
+      html += pitHtml(idx, 2, col+2, highlightIdx);
+    }
+
+    boardEl.innerHTML = html;
+
+    // attach click handlers
+    boardEl.querySelectorAll('.pit[data-idx]').forEach(el=>{
+      el.addEventListener('click', onPitClick);
+    });
+  }
+
+  function pitHtml(idx, row, col, highlightIdx){
+    const isP1 = idx>=0 && idx<=6;
+    const ownerTurn = isP1 ? 1 : 2;
+    const canClick = !busy && !gameOver && pits[idx]>0 && ownerTurn===currentPlayer &&
+                      !(mode==='computer' && currentPlayer===2);
+    const cls = ['pit'];
+    if(canClick) cls.push('clickable'); else cls.push('disabled');
+    if(highlightIdx===idx) cls.push('drop');
+    return `<div class="${cls.join(' ')}" data-idx="${idx}" style="grid-row:${row}; grid-column:${col};">
+      <div class="seeds">${seedDots(idx)}</div>
+      <div class="count-num">${pits[idx]}</div>
+    </div>`;
+  }
+
+  function updateTurnUI(){
+    if(gameOver) return;
+    turnDot.style.background = currentPlayer===1 ? 'var(--p1)' : 'var(--p2)';
+    const who = currentPlayer===1 ? 'Pemain 1' : (mode==='computer' ? 'Komputer' : 'Pemain 2');
+    turnLabel.textContent = 'Giliran ' + who;
+  }
+
+  function onPitClick(e){
+    const idx = parseInt(e.currentTarget.getAttribute('data-idx'));
+    const isP1 = idx>=0 && idx<=6;
+    const ownerTurn = isP1 ? 1 : 2;
+    if(busy || gameOver) return;
+    if(pits[idx]<=0) return;
+    if(ownerTurn !== currentPlayer) return;
+    if(mode==='computer' && currentPlayer===2) return;
+    doMove(idx);
+  }
+
+  function nextIdx(idx){
+    let n = (idx+1)%16;
+    if((currentPlayer===1 && n===15) || (currentPlayer===2 && n===7)){
+      n = (n+1)%16;
+    }
+    return n;
+  }
+
+  // Menyebar biji satu-satu. Kalau biji terakhir jatuh di lubang kecil
+  // yang sudah ada isinya (milik sendiri ATAU lawan), semua biji di
+  // lubang itu diambil lagi dan disebar lanjut (aturan "jalan terus").
+  function doMove(startIdx){
+    busy = true;
+    let inHand = pits[startIdx];
+    pits[startIdx] = 0;
+    let idx = startIdx;
+    render();
+
+    function step(){
+      if(inHand > 0){
+        idx = nextIdx(idx);
+        pits[idx]++;
+        inHand--;
+        soundDrop();
+        render(idx);
+        setTimeout(step, 480);
+        return;
+      }
+
+      const isOwnStore = (currentPlayer===1 && idx===7) || (currentPlayer===2 && idx===15);
+      const isStore = (idx===7 || idx===15);
+
+      if(isOwnStore){
+        soundExtraTurn();
+        setTimeout(()=>finishMove(idx, true), 600);
+        return;
+      }
+      if(!isStore && pits[idx] > 1){
+        // lubang sudah ada isinya sebelum biji terakhir jatuh -> ambil semua, lanjut sebar
+        inHand = pits[idx];
+        pits[idx] = 0;
+        soundPickup();
+        render();
+        setTimeout(step, 620);
+        return;
+      }
+      // jatuh di lubang kosong (mati) atau lubang lawan yang baru terisi 1
+      setTimeout(()=>finishMove(idx, false), 600);
+    }
+    setTimeout(step, 350);
+  }
+
+  function finishMove(lastIdx, extra){
+    if(!extra){
+      const inOwnRange = currentPlayer===1 ? (lastIdx>=0 && lastIdx<=6) : (lastIdx>=8 && lastIdx<=14);
+      if(inOwnRange && pits[lastIdx]===1){
+        // mati di lubang kosong milik sendiri -> ambil biji di lubang seberang (lawan) ke rumah
+        const oppIdx = 14-lastIdx;
+        if(pits[oppIdx] > 0){
+          const storeIdx = currentPlayer===1 ? 7 : 15;
+          pits[storeIdx] += pits[oppIdx];
+          pits[oppIdx] = 0;
+          soundCapture();
+        }
+      }
+    }
+
+    render();
+
+    if(checkGameEnd()){
+      busy = false;
+      return;
+    }
+
+    if(!extra){
+      currentPlayer = currentPlayer===1 ? 2 : 1;
+    }
+    busy = false;
+    render();
+    updateTurnUI();
+
+    if(checkNoMoves()){
+      return;
+    }
+
+    if(mode==='computer' && currentPlayer===2 && !gameOver){
+      busy = true;
+      setTimeout(computerMove, 1100);
+    }
+  }
+
+  function checkGameEnd(){
+    const p1Empty = pits.slice(0,7).every(v=>v===0);
+    const p2Empty = pits.slice(8,15).every(v=>v===0);
+    if(p1Empty || p2Empty){
+      // sweep remaining side into its own store
+      if(p1Empty && !p2Empty){
+        for(let i=8;i<=14;i++){ pits[15]+=pits[i]; pits[i]=0; }
+      } else if(p2Empty && !p1Empty){
+        for(let i=0;i<=6;i++){ pits[7]+=pits[i]; pits[i]=0; }
+      }
+      render();
+      endGame();
+      return true;
+    }
+    return false;
+  }
+
+  function checkNoMoves(){
+    const range = currentPlayer===1 ? [0,6] : [8,14];
+    let has = false;
+    for(let i=range[0]; i<=range[1]; i++){ if(pits[i]>0){ has=true; break; } }
+    if(!has){
+      // sweep opponent side into their store, end game
+      const oppRange = currentPlayer===1 ? [8,14] : [0,6];
+      const oppStore = currentPlayer===1 ? 15 : 7;
+      for(let i=oppRange[0]; i<=oppRange[1]; i++){ pits[oppStore]+=pits[i]; pits[i]=0; }
+      render();
+      endGame();
+      return true;
+    }
+    return false;
+  }
+
+  function endGame(){
+    gameOver = true;
+    soundGameOver();
+    const s1 = pits[7], s2 = pits[15];
+    const title = document.getElementById('overlayTitle');
+    const text = document.getElementById('overlayText');
+    if(s1===s2){
+      title.textContent = 'Seri!';
+    } else {
+      const winner = s1>s2 ? 'Pemain 1' : (mode==='computer' ? 'Komputer' : 'Pemain 2');
+      title.textContent = winner + ' Menang!';
+    }
+    text.textContent = `Lumbung Pemain 1: ${s1} biji  &middot;  Lumbung ${mode==='computer'?'Komputer':'Pemain 2'}: ${s2} biji`;
+    overlay.classList.add('show');
+  }
+
+  function computerMove(){
+    const options = [];
+    for(let i=8;i<=14;i++){ if(pits[i]>0) options.push(i); }
+    if(options.length===0){ busy=false; checkNoMoves(); return; }
+    const pick = options[Math.floor(Math.random()*options.length)];
+    doMove(pick);
+  }
+
+  document.getElementById('modeFriend').addEventListener('click', ()=>{
+    soundClick();
+    mode='friend';
+    document.getElementById('modeFriend').classList.add('active');
+    document.getElementById('modeComputer').classList.remove('active');
+    resetGame();
+  });
+  document.getElementById('modeComputer').addEventListener('click', ()=>{
+    soundClick();
+    mode='computer';
+    document.getElementById('modeComputer').classList.add('active');
+    document.getElementById('modeFriend').classList.remove('active');
+    resetGame();
+  });
+  document.getElementById('resetBtn').addEventListener('click', ()=>{ soundClick(); resetGame(); });
+  document.getElementById('playAgain').addEventListener('click', ()=>{ soundClick(); resetGame(); });
+
+  resetGame();
+})();
+</script>
+</body>
+</html>
